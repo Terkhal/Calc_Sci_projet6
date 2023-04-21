@@ -2,6 +2,7 @@
 from functools import reduce
 from tkinter import *
 import re
+import math
 
 
 
@@ -10,6 +11,7 @@ calc_input = ""
 result = ""
 calc_final = ""
 calc_process = ""
+x = ""
 
 window.rowconfigure(0, weight=1)
 window.rowconfigure(1, weight=0)
@@ -55,8 +57,8 @@ result_label.grid(column=0, row=1, columnspan=4, **default_result_grid)
 mc = Button(window, text="MC", command=lambda: clear(), **default_button_style)
 mc.grid(column=0, row=2, **default_button_grid)
 
-mplus = Button(window, text="M+", **default_button_style)
-mplus.grid(column=1, row=2, **default_button_grid)
+cos = Button(window, text="Cos", command=lambda: input_key("Cos("), **default_button_style)
+cos.grid(column=1, row=2, **default_button_grid)
 
 div = Button(window, text="/", command=lambda: input_key("/"), **default_button_style)
 div.grid(column=2, row=2, **default_button_grid)
@@ -116,8 +118,14 @@ open.grid(column=0, row=7, **default_button_grid)
 close = Button(window, text=")", command=lambda: input_key(")"), **default_button_style)
 close.grid(column=1, row=7, **default_button_grid)
 
-close = Button(window, text="Close", command=window.quit, **default_close_style)
-close.grid(column=0, row=8, columnspan=4, **default_button_grid)
+tan = Button(window, text="Tan", command=lambda: input_key("Tan("), **default_button_style)
+tan.grid(column=2, row=7, **default_button_grid)
+
+Sin = Button(window, text="Sin", command=lambda: input_key("Sin("), **default_button_style)
+Sin.grid(column=3, row=7, **default_button_grid)
+
+quitbut = Button(window, text="Close", command=window.quit, **default_close_style)
+quitbut.grid(column=0, row=8, columnspan=4, **default_button_grid)
 
 # On change la couleur de fond et les marges de la fenêtre.
 window.configure(bg="#333333", padx=10, pady=10)
@@ -131,12 +139,21 @@ window.title("Tut Calculator")
 
    
 
-
 def input_key(value):
     global calc_input
+    if value == '-' and (len(calc_input) == 0 or re.search(r'[-+*/(\s][-+]*$', calc_input)):
+        calc_input += ' '
+        print('adding a space')
     calc_input += value
+    
     calc_input_text.set(calc_input)
     print(calc_input)
+
+# def input_key(value):
+#     global calc_input
+#     calc_input += value
+#     calc_input_text.set(calc_input)
+#     print(calc_input)
 
 def equal(calcul, result):
     # global calc_input
@@ -147,89 +164,153 @@ def equal(calcul, result):
     result_text.set(result)  
     print(result)
    
+   
+def CosFunc(string, calc_process):
+    func_res = str(math.cos(string))
+    trigopattern = r'(Cos)\((\d+)\)'
+    lookfortrigo = re.search(trigopattern, calc_process)
+    if lookfortrigo:
+        calc_process = calc_process[:lookfortrigo.start()] + func_res + calc_process[lookfortrigo.end():]
+        print('je return le new calc_process:', calc_process)
+        calc_process = verifyString(calc_process)
+   
 
-# def verify_parenthese(calc_process):
-#     global calc_input
-#     global calc_final
-#     # calc_final = calc_input 
-#     pattern = r"\(([^\(\)]+)\)"
-#     match = re.search(pattern, calc_process)
-#     if match:
-#         calc_between = match.group(1)
-#         print('Found: ', calc_between)  
-#         return True     
-#     else:
-#         print('i\'m done: ', calc_final)
-#         return False
+def SinFunc(string, calc_process):
+    func_res = str(math.sin(string))
+    trigopattern = r'(Sin)\((\d+)\)'
+    lookfortrigo = re.search(trigopattern, calc_process)
+    if lookfortrigo:
+        calc_process = calc_process[:lookfortrigo.start()] + func_res + calc_process[lookfortrigo.end():]
+        print('je return le new calc_process:', calc_process)
+        calc_process = verifyString(calc_process)
 
+def TanFunc(string, calc_process):
+    func_res = str(math.tan(string))
+    trigopattern = r'(Tan)\((\d+)\)'
+    lookfortrigo = re.search(trigopattern, calc_process)
+    if lookfortrigo:
+        calc_process = calc_process[:lookfortrigo.start()] + func_res + calc_process[lookfortrigo.end():]
+        print('je return le new calc_process:', calc_process)
+        calc_process = verifyString(calc_process)
     
-
+    
     
     
 def verifyString(calc_process):
     #checking the prio V1
         global calc_input
         global calc_final
-     
-        pattern = r"\(([^\(\)]+)\)"
-        match = re.search(pattern, calc_process)
-        if match:
-            calc_final= match.group(1)
-            print('Found: ', calc_final)        
-        else: 
-            calc_final = calc_process
-            
-        s = re.split('(\W)', calc_final)
-        print('my split: ', s)
-        while len(s) > 1:   
-            if ('/' in s or
-                '*' in s):
-                for i in range(len(s)):
-                    print('check multiplier',s)
-                    if s[i] == '/':
-                        print('divide',s)
-                        s[i] = int(s[i-1]) / int(s[i+1])
-                        s.pop(i-1)
-                        s.pop(i)
-                    
-                        break
-                    elif s[i] == '*':
-                        print('multiply',s)
-                        s[i] = int(s[i-1]) * int(s[i+1])
-                        s.pop(i-1)
-                        s.pop(i)
-                        break
-            else:
-                for i in range(len(s)):
-                    if s[i] == '-':
-                        print('minus',s)
-                        s[i] = int(s[i-1]) - int(s[i+1])
-                        s.pop(i-1)
-                        s.pop(i)
-                        break
-                    elif s[i] == '+':
-                        print('plus',s)
-                        s[i] = int(s[i-1]) + int(s[i+1])
-                        s.pop(i-1)
-                        s.pop(i)
-                        break
-            result = s[0]
-           #check if there are parentheses
+      
+        print('my process: ',calc_process)
         
+        
+        #clear trigo first then we have fun
+        trigopattern = r'(Cos|Sin|Tan)\((\d+)\)'
+        lookfortrigo = re.search(trigopattern, calc_process)
+        if lookfortrigo:
+            func_name = lookfortrigo.group(1)
+            x = float(lookfortrigo.group(2))
+            if func_name == 'Cos':
+                print('jappelle Cos')
+                calc_process = CosFunc(x, calc_process)
+            elif func_name == 'Sin':
+                calc_process = SinFunc(x, calc_process)
+            elif func_name == 'Tan':
+                calc_process = TanFunc(x, calc_process)
+        
+        else:
+            print('this is my calc process', calc_process)
             pattern = r"\(([^\(\)]+)\)"
             match = re.search(pattern, calc_process)
             if match:
-                calc_process = calc_process.replace('({})'.format(calc_final),str(result))
-                print('Found go back and process: ', calc_process) 
-                return verifyString(calc_process)
-            else:
+                calc_final= match.group(1)
+                print('Found: ', calc_final)        
+            else: 
                 calc_final = calc_process
-                print('fini voici la string final', calc_final)
+            s = re.findall(r"(?<!\d)-?\d+(?:\.\d+)?(?!\d)|\D", calc_final.replace(' ', ''))
+            s = [elem for elem in s if elem]
 
-            print(calc_input)
-            print('my result is: ', result)
-            print('my calcul is: ', calc_input)
-            equal(calc_input, result)
+            print('my split: ', s)
+            
+            for i in range(len(s)):
+                if s[i] == "":
+                    s[i] = 0
+            print('MY LENTGH IS: ',len(s))
+            print('I HAVE: ',s)
+            
+            pattern = r"\(([^\(\)]+)\)"
+            match = re.search(pattern, calc_process)
+            if match and len(s) == 1:
+                    print('jai un solo parenthese:', s)
+                    r = float(s[0])
+                    if r < 0:
+                        calc_process = calc_process.replace('( {})'.format(s[0]),str(r))
+                        print('Found go back and process negative: ', calc_process) 
+                        return verifyString(calc_process)
+                    else:
+                        calc_process = calc_process.replace('({})'.format(s[0]),str(r))
+                        print('Found go back and process positive: ', calc_process) 
+                        return verifyString(calc_process)
+            
+            
+            if len(s) > 1: 
+                while len(s) > 1:
+                    
+                    if ('/' in s or
+                        '*' in s):
+                        for i in range(len(s)):
+                            print('check multiplier',s)
+                            if s[i] == '/':
+                                print('divide',s)
+                                s[i] = float(s[i-1]) / float(s[i+1])
+                                s.pop(i-1)
+                                s.pop(i)
+                            
+                                break
+                            elif s[i] == '*':
+                                print('multiply',s)
+                                s[i] = float(s[i-1]) * float(s[i+1])
+                                s.pop(i-1)
+                                s.pop(i)
+                                break
+                    else:
+                        for i in range(len(s)):
+                            if s[i] == '-':
+                                print('minus',s)
+                                s[i] = float(s[i-1]) - float(s[i+1])
+                                s.pop(i-1)
+                                s.pop(i)
+                                break
+                            elif s[i] == '+':
+                                print('plus',s)
+                                s[i] = float(s[i-1]) + float(s[i+1])
+                                s.pop(i-1)
+                                s.pop(i)
+                                break
+                    result = s[0]
+                    print('current res', result)
+                #check if there are parentheses
+            
+                pattern = r"\(([^\(\)]+)\)"
+                match = re.search(pattern, calc_process)
+                if match:
+                    calc_process = calc_process.replace('({})'.format(calc_final),str(result))
+                    print('Found go back and process: ', calc_process) 
+                    return verifyString(calc_process)
+                else:
+                    
+                    
+                    print('fini voici la string final', calc_process)
+                    result = float(result)
+                    equal(calc_input, result)
+                    
+                    return result
+            else:
+                result = float(s)
+                print(calc_input)
+                print('my result is: ', result)
+                print('my calcul is: ', calc_input)
+                equal(calc_input, result)
 
 
         
