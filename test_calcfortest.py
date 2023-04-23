@@ -12,7 +12,7 @@ class TestCalculator(unittest.TestCase):
  
         
     def test_verifyString(self):
-        # Test basic numeric input
+        # Test basic  input
         result = verifyString('2+2')
         self.assertEqual(result, 4.0)
         

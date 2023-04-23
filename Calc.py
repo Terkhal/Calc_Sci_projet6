@@ -12,7 +12,7 @@ result = ""
 calc_final = ""
 calc_process = ""
 x = ""
-
+#GUI configuraton
 window.rowconfigure(0, weight=1)
 window.rowconfigure(1, weight=0)
 window.rowconfigure(2, weight=0)
@@ -22,16 +22,13 @@ window.rowconfigure(5, weight=0)
 window.rowconfigure(6, weight=0)
 window.rowconfigure(7, weight=0)
 window.rowconfigure(8, weight=0)
-# On force la taille des colonne avec le paramètre uniform. "same_group" est texte libre.
-# Le fait que les 4 colonnes utilisent la même chaîne force la même taille. 
-# Les paramètres weight servent uniquement pour que les 4 colonnes utilisent 100% de la 
-# largeur de la fenêtre.
+
 window.columnconfigure(0, weight=1, uniform="same_group")
 window.columnconfigure(1, weight=1, uniform="same_group")
 window.columnconfigure(2, weight=1, uniform="same_group")
 window.columnconfigure(3, weight=1, uniform="same_group")
 
-# On définit quelques éléments de style pour nos boutons.
+# default button skin
 default_button_style = {
     "bg": "#595959", "fg": "white", "highlightthickness": 0,
     "font": ("Arial", 25, "bold")
@@ -105,7 +102,7 @@ d3.grid(column=2, row=5, **default_button_grid)
 equalsymb = Button(window, text="=", command=lambda: filterString(),**equal_button_style)
 equalsymb.grid(column=3, row=5, rowspan=2, **default_button_grid)
 
-# Cinquième ligne
+# 6th row
 d0 = Button(window, text="0", command=lambda: input_key("0"), **default_button_style)
 d0.grid(column=0, row=6, columnspan=2, **default_button_grid)
 
@@ -124,21 +121,22 @@ tan.grid(column=2, row=7, **default_button_grid)
 Sin = Button(window, text="Sin", command=lambda: input_key("Sin("), **default_button_style)
 Sin.grid(column=3, row=7, **default_button_grid)
 
+# 7th row
 quitbut = Button(window, text="Close", command=window.quit, **default_close_style)
 quitbut.grid(column=0, row=8, columnspan=4, **default_button_grid)
 
-# On change la couleur de fond et les marges de la fenêtre.
+# bg and margin
 window.configure(bg="#333333", padx=10, pady=10)
 
-# On dimensionne la fenêtre (500 pixels de large par 200 de haut).
+# Window size
 window.geometry("400x600")
 
-# On ajoute un titre à la fenêtre
+# title
 window.title("Tut Calculator")
 
 
    
-
+#input string creator
 def input_key(value):
     global calc_input
     if value == '-' and (len(calc_input) == 0 or re.search(r'[-+*/(\s][-+]*$', calc_input)):
@@ -149,22 +147,15 @@ def input_key(value):
     calc_input_text.set(calc_input)
     print(calc_input)
 
-# def input_key(value):
-#     global calc_input
-#     calc_input += value
-#     calc_input_text.set(calc_input)
-#     print(calc_input)
-
+#display setup 
 def equal(calcul, result):
-    # global calc_input
-    # global result
-    # additions = calc_input.split("+")
+
     calc_input_text.set(calcul)
     calc_input = str(calcul)
     result_text.set(result)  
     print(result)
    
-   
+#Cos function
 def CosFunc(string, calc_process):
     func_res = str(math.cos(string))
     trigopattern = r'(Cos)\((\d+)\)'
@@ -174,6 +165,7 @@ def CosFunc(string, calc_process):
         print('je return le new calc_process:', calc_process)
         calc_process = verifyString(calc_process)
    
+#Sin function
 
 def SinFunc(string, calc_process):
     func_res = str(math.sin(string))
@@ -183,7 +175,8 @@ def SinFunc(string, calc_process):
         calc_process = calc_process[:lookfortrigo.start()] + func_res + calc_process[lookfortrigo.end():]
         print('je return le new calc_process:', calc_process)
         calc_process = verifyString(calc_process)
-
+        
+#Tan function
 def TanFunc(string, calc_process):
     func_res = str(math.tan(string))
     trigopattern = r'(Tan)\((\d+)\)'
@@ -195,7 +188,7 @@ def TanFunc(string, calc_process):
     
     
     
-    
+#the king of them all do all the calculation process   
 def verifyString(calc_process):
     #checking the prio V1
         global calc_input
@@ -219,6 +212,7 @@ def verifyString(calc_process):
                 calc_process = TanFunc(x, calc_process)
         
         else:
+            #trigo cleared or non-existent, we check parenthesis
             print('this is my calc process', calc_process)
             pattern = r"\(([^\(\)]+)\)"
             match = re.search(pattern, calc_process)
@@ -226,6 +220,7 @@ def verifyString(calc_process):
                 calc_final= match.group(1)
                 print('Found: ', calc_final)        
             else: 
+            #no parenthesis found we check prio operators and create our list
                 calc_final = calc_process
             s = re.findall(r"(?<!\d)-?\d+(?:\.\d+)?(?!\d)|\D", calc_final.replace(' ', ''))
             s = [elem for elem in s if elem]
@@ -240,6 +235,7 @@ def verifyString(calc_process):
             
             pattern = r"\(([^\(\)]+)\)"
             match = re.search(pattern, calc_process)
+            #if some didnt put any operator but parenthesis we skip to the end.
             if match and len(s) == 1:
                     print('jai un solo parenthese:', s)
                     r = float(s[0])
@@ -252,14 +248,14 @@ def verifyString(calc_process):
                         print('Found go back and process positive: ', calc_process) 
                         return verifyString(calc_process)
             
-            
+            #we check prio in our list "s"
             if len(s) > 1: 
                 while len(s) > 1:
                     
                     if ('/' in s or
                         '*' in s):
                         for i in range(len(s)):
-                            print('check multiplier',s)
+                            print('check priority',s)
                             if s[i] == '/':
                                 print('divide',s)
                                 s[i] = float(s[i-1]) / float(s[i+1])
@@ -289,23 +285,26 @@ def verifyString(calc_process):
                                 break
                     result = s[0]
                     print('current res', result)
-                #check if there are parentheses
+                #check if there are parentheses and replace the calc_process string with the calculated result
             
                 pattern = r"\(([^\(\)]+)\)"
                 match = re.search(pattern, calc_process)
                 if match:
                     calc_process = calc_process.replace('({})'.format(calc_final),str(result))
                     print('Found go back and process: ', calc_process) 
+                    #we go back and repeat the process untill all parenthesis are gone
                     return verifyString(calc_process)
+                
                 else:
                     
-                    
+                    #full string and priorities + parenthesis cleared we can print the result
                     print('fini voici la string final', calc_process)
                     result = float(result)
                     equal(calc_input, result)
                     
                     return result
             else:
+                #if it was a solo number we simply display it
                 result = float(s)
                 print(calc_input)
                 print('my result is: ', result)
@@ -313,8 +312,9 @@ def verifyString(calc_process):
                 equal(calc_input, result)
 
 
-        
     
+   #we keep calc_input string as it is displayed.
+   #we define calcprocess that will be iterated upon completion 
 def filterString():
     global calc_input
     global calc_process   
@@ -324,7 +324,7 @@ def filterString():
     
     
     
-   
+   #we clear the board
 def clear():
     
     global calc_input
